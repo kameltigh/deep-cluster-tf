@@ -8,6 +8,7 @@ class Dataset:
     DATASET_SIZE = 2000
     IMAGE_SIZE = 227
     BATCH_SIZE = 32
+    PREFETCH_SIZE = 32
 
     def __init__(self, dicom_path: str):
         list_ds = tf.data.Dataset.list_files(os.path.join(dicom_path, "*.dcm"), shuffle=False)
@@ -17,11 +18,13 @@ class Dataset:
         train_ds = list_ds.skip(val_size)
         val_ds = list_ds.take(val_size)
 
-        self.train_ds = train_ds.map(Dataset.__load_mage, num_parallel_calls=32)
-        self.val_ds = val_ds.map(Dataset.__load_mage, num_parallel_calls=32)
+        self.train_ds = train_ds.map(Dataset.__load_image, num_parallel_calls=32).batch(Dataset.BATCH_SIZE).prefetch(
+            Dataset.PREFETCH_SIZE)
+        self.val_ds = val_ds.map(Dataset.__load_image, num_parallel_calls=32).batch(Dataset.BATCH_SIZE).prefetch(
+            Dataset.PREFETCH_SIZE)
 
     @staticmethod
-    def __load_mage(path):
+    def __load_image(path):
         dcm_img = tf.io.read_file(path)
         img = tfio.image.decode_dicom_image(dcm_img)
         return tf.image.resize(img, [Dataset.IMAGE_SIZE, Dataset.IMAGE_SIZE])
