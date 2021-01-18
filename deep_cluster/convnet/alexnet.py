@@ -1,5 +1,6 @@
-import tensorflow as tf
+from deep_cluster.preprocessing.dataset import Dataset
+
 
 class AlexNet:
-    def __init__(self):
-        tf.data.Dataset.from_tensor_slices()
+    def __init__(self, dataset: Dataset):
+        self.dataset = dataset
