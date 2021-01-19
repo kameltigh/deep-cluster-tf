@@ -15,7 +15,7 @@ if __name__ == '__main__':
     logging.info("successfully loaded preprocessing")
     tf_dataset = dataset.get_train_dataset()
 
-    alexnet = AlexNet(tf_dataset)
+    alexnet = AlexNet()
 
     for image in tf_dataset:
         print(image.numpy())
