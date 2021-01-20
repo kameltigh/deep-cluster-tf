@@ -35,7 +35,7 @@ class AlexNet:
     def __conv2d(inputs, filters, stride, padding="VALID"):
         out = tf.nn.conv2d(inputs, filters, strides=[1, stride, stride, 1], padding=padding)
         mean, variance = tf.nn.moments(out, axes=0)
-        out = tf.nn.batch_normalization(out, mean, variance, offset=0, scale=0, variance_epsilon=1e-20)
+        out = tf.nn.batch_normalization(out, mean, variance, offset=0, scale=1, variance_epsilon=1e-20)
         return tf.nn.relu(out)
 
     @staticmethod
