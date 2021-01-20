@@ -1,8 +1,5 @@
 import tensorflow as tf
 
-from deep_cluster.preprocessing.dataset import Dataset
-
-
 class AlexNet:
     SEED = 42
 

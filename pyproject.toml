@@ -9,9 +9,8 @@ license = "mit"
 python = ">=3.8,<3.9"
 scikit-learn = "^0.24.0"
 pandas = "^1.2.0"
-pydicom = "^2.1.2"
-tensorflow = "2.3.0"
 tensorflow-io = "0.15.0"
+tensorflow = "2.3.0"
 
 [tool.poetry.dev-dependencies]
 matplotlib = "^3.3.3"

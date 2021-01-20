@@ -7,7 +7,7 @@ import tensorflow_io as tfio
 class Dataset:
     DATASET_SIZE = 2000
     IMAGE_SIZE = 227
-    BATCH_SIZE = 32
+    BATCH_SIZE = 512
     PREFETCH_SIZE = 32
 
     def __init__(self, dicom_path: str):
