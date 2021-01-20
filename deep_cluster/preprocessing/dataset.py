@@ -27,7 +27,7 @@ class Dataset:
     def __load_image(path):
         dcm_img = tf.io.read_file(path)
         img = tfio.image.decode_dicom_image(dcm_img)
-        return tf.image.resize(img, [Dataset.IMAGE_SIZE, Dataset.IMAGE_SIZE])
+        return tf.squeeze(tf.image.resize(img, [Dataset.IMAGE_SIZE, Dataset.IMAGE_SIZE]), [0])
 
     def get_train_dataset(self) -> tf.data.Dataset:
         return self.train_ds

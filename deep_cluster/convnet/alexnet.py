@@ -73,4 +73,6 @@ class AlexNet:
         fc1 = AlexNet.__dense(p3_reshaped, self.fc_weights[0])
         fc2 = AlexNet.__dense(fc1, self.fc_weights[1])
 
-        fc3 = tf.matmul(fc2, [4096, 4096])
+        fc3 = tf.matmul(fc2, self.fc_weights[2])
+
+        return fc3
