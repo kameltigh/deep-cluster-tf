@@ -1,8 +1,9 @@
 import logging
 import os
-
+import matplotlib.pyplot as plt
 from deep_cluster.preprocessing.dataset import Dataset
 from deep_cluster.convnet.alexnet import AlexNet
+import tensorflow as tf
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
@@ -17,5 +18,10 @@ if __name__ == '__main__':
 
     alexnet = AlexNet()
 
-    for image in tf_dataset:
-        print(image.numpy())
+
+
+    for image in tf_dataset.take(1):
+        plt.figure()
+        plt.imshow(tf.squeeze(image[0]).numpy())
+        plt.show()
+        print(alexnet.build_model(image).shape)
