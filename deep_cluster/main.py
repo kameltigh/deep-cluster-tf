@@ -2,8 +2,8 @@ import logging
 import os
 
 from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
 
+from deep_cluster.clustering.pca import PCA as tf_pca
 from deep_cluster.convnet.alexnet import AlexNet
 from deep_cluster.preprocessing.dataset import Dataset
 
@@ -23,7 +23,8 @@ if __name__ == '__main__':
 
     for image in tf_dataset.take(1):
         output = alexnet.build_model(image)
-        pca = PCA(n_components=32)
-        pca_transformed = pca.fit_transform(output.numpy())
-        kmeans = KMeans(n_clusters=50, random_state=42).fit(pca_transformed)
-        clusters = kmeans.predict(pca_transformed)
+        pca_tf = tf_pca(output, k=32)
+        print(pca_tf.y.shape)
+        kmeans = KMeans(n_clusters=50, random_state=42).fit(pca_tf.y.numpy())
+        clusters = kmeans.predict(pca_tf.y.numpy())
+        print(clusters.shape)
