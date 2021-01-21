@@ -1,14 +1,16 @@
 import logging
 import os
 
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
+from sklearn.decomposition import PCA
 
 from deep_cluster.clustering.kmeans import Kmeans as tf_kmeans
-from deep_cluster.clustering.pca import PCA as tf_pca
 from deep_cluster.convnet.alexnet import AlexNet
 from deep_cluster.preprocessing.dataset import Dataset
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
 if __name__ == '__main__':
@@ -17,7 +19,7 @@ if __name__ == '__main__':
     nb_classes = 3
     learning_rate = 0.001
 
-    dataset = Dataset(os.path.join(dir_path, "../../data/stage_2_train_images"), batch_size=128)
+    dataset = Dataset(os.path.join(dir_path, "../../data/stage_2_train_images"), batch_size=32)
     logging.info("successfully loaded preprocessing")
     tf_dataset = dataset.get_train_dataset()
 
@@ -26,9 +28,39 @@ if __name__ == '__main__':
     optimizer = tf.optimizers.Adam(learning_rate)
     kmeans_tf = tf_kmeans(k=nb_classes)
 
-    for image in tf_dataset:
-        output = alexnet.model(image, get_last_layer=False)
-        pca_tf = tf_pca(output, k=16)
-        clusters_tf = kmeans_tf.fit_transform(pca_tf.y.numpy())
+    loss_evolution = []
+    accuracy_evolution = []
+
+    i = 0
+    for images in tf_dataset:
+        logging.info("batch {}".format(i))
+        output = alexnet.model(images, get_last_layer=False)
+
+        pca = PCA(n_components=16, whiten=True)
+        pca_transformed = pca.fit_transform(output)
+        row_sums = np.linalg.norm(pca_transformed, axis=1)
+        pca_transformed /= row_sums[:, np.newaxis]
+
+        clusters_tf = kmeans_tf.fit_transform(pca_transformed)
         classification_output = tf.one_hot(clusters_tf, depth=nb_classes)
-        alexnet.train_step(inputs=image, outputs=classification_output, optimizer=optimizer)
+        loss = alexnet.train_step(inputs=images, outputs=classification_output, optimizer=optimizer)
+        loss_evolution.append(loss)
+
+        prediction = alexnet.model(images, get_last_layer=True)
+        predicted_classes = tf.argmax(prediction, axis=1)
+        equality = tf.math.equal(predicted_classes, clusters_tf)
+        accuracy = tf.math.reduce_mean(tf.cast(equality, tf.float32))
+        accuracy_evolution.append(accuracy)
+        logging.info("Accuracy: {}".format(accuracy))
+
+        i += 1
+
+    plt.figure()
+    plt.plot(loss_evolution)
+    plt.title("Loss evolution")
+    plt.show()
+
+    plt.figure()
+    plt.plot(accuracy_evolution)
+    plt.title("Train accuracy evolution")
+    plt.show()

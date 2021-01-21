@@ -66,9 +66,12 @@ class AlexNet:
         fc1 = AlexNet.__dense(p3_reshaped, self.weights[5])
         fc2 = AlexNet.__dense(fc1, self.weights[6])
 
-        fc3 = tf.matmul(fc2, self.weights[7])
+        if get_last_layer:
+            fc3 = tf.nn.softmax(tf.matmul(fc2, self.weights[7]))
 
-        return fc3
+            return fc3
+        else:
+            return fc2
 
     @staticmethod
     def loss(prediction, target):
@@ -80,3 +83,4 @@ class AlexNet:
         grads = tape.gradient(current_loss, self.weights)
         optimizer.apply_gradients(zip(grads, self.weights))
         logging.info("Loss: {}".format(tf.reduce_mean(current_loss)))
+        return tf.reduce_mean(current_loss)
