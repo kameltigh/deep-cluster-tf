@@ -1,3 +1,5 @@
+import logging
+
 import tensorflow as tf
 
 
@@ -9,9 +11,8 @@ class Kmeans:
         self.k = k
 
     @staticmethod
-    def __get_clusters(data, centroids, iter):
+    def __get_clusters(data, centroids):
         clusters = []
-        printed = False
         for sample in data:
             distances = tf.norm(tf.expand_dims(sample, axis=0) - centroids, ord="euclidean", axis=1)
 
@@ -53,9 +54,9 @@ class Kmeans:
             self.centroids = Kmeans.__initialize_centroids(data, self.k)
         clusters = None
         for i in range(max_iter):
-            clusters = Kmeans.__get_clusters(data, self.centroids, iter=i)
+            clusters = Kmeans.__get_clusters(data, self.centroids)
             self.centroids, centroid_evolution = Kmeans.__update_centroids(data, clusters, self.centroids)
-            print("Centroid evo: {}".format(centroid_evolution))
+            logging.debug("Centroid evo: {}".format(centroid_evolution))
             if centroid_evolution <= Kmeans.EPSILON:
                 break
 
