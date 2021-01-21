@@ -20,9 +20,9 @@ class Dataset:
         self.batch_size = batch_size
 
         self.train_ds = train_ds.map(Dataset.__load_image, num_parallel_calls=32).batch(self.batch_size).prefetch(
-            Dataset.PREFETCH_SIZE)
+            self.batch_size)
         self.val_ds = val_ds.map(Dataset.__load_image, num_parallel_calls=32).batch(self.batch_size).prefetch(
-            Dataset.PREFETCH_SIZE)
+            self.batch_size)
 
     @staticmethod
     def __load_image(path):

@@ -1,32 +1,28 @@
+import logging
+
 import tensorflow as tf
+
 
 class AlexNet:
     SEED = 42
 
-    def __init__(self):
+    def __init__(self, nb_classes=3):
         self.initializer = tf.initializers.glorot_uniform(seed=AlexNet.SEED)
 
-        self.conv_shapes = (
+        self.weight_shapes = [
             [11, 11, 1, 96],
             [5, 5, 96, 256],
             [3, 3, 256, 384],
             [3, 3, 384, 384],
             [3, 3, 384, 256],
-        )
-
-        self.conv_filters = []
-        for i in range(len(self.conv_shapes)):
-            self.conv_filters.append(self.__build_weights(self.conv_shapes[i], 'conv_weight{}'.format(i)))
-
-        self.fc_weights_shapes = (
             [9216, 4096],
             [4096, 4096],
-            [4096, 4096]
-        )
+            [4096, nb_classes]
+        ]
 
-        self.fc_weights = []
-        for i in range(len(self.fc_weights_shapes)):
-            self.fc_weights.append(self.__build_weights(self.fc_weights_shapes[i], 'fc_weight{}'.format(i)))
+        self.weights = []
+        for i in range(len(self.weight_shapes)):
+            self.weights.append(self.__build_weights(self.weight_shapes[i], 'weight{}'.format(i)))
 
     @staticmethod
     def __conv2d(inputs, filters, stride, padding="VALID"):
@@ -48,28 +44,39 @@ class AlexNet:
     def __build_weights(self, shape, name):
         return tf.Variable(initial_value=self.initializer(shape), name=name, trainable=True, dtype=tf.float32)
 
-    def build_model(self, x):
+    def model(self, x, get_last_layer):
         x = tf.cast(x, dtype=tf.float32)
 
-        c1 = AlexNet.__conv2d(x, self.conv_filters[0], stride=4)
+        c1 = AlexNet.__conv2d(x, self.weights[0], stride=4)
         p1 = AlexNet.__maxpool(c1, pool_size=3, stride=2)
 
-        c2 = AlexNet.__conv2d(p1, self.conv_filters[1], stride=1, padding="SAME")
+        c2 = AlexNet.__conv2d(p1, self.weights[1], stride=1, padding="SAME")
         p2 = AlexNet.__maxpool(c2, pool_size=3, stride=2)
 
-        c3 = AlexNet.__conv2d(p2, self.conv_filters[2], stride=1, padding="SAME")
+        c3 = AlexNet.__conv2d(p2, self.weights[2], stride=1, padding="SAME")
 
-        c4 = AlexNet.__conv2d(c3, self.conv_filters[3], stride=1, padding="SAME")
+        c4 = AlexNet.__conv2d(c3, self.weights[3], stride=1, padding="SAME")
 
-        c5 = AlexNet.__conv2d(c4, self.conv_filters[4], stride=1, padding="SAME")
+        c5 = AlexNet.__conv2d(c4, self.weights[4], stride=1, padding="SAME")
 
         p3 = AlexNet.__maxpool(c5, pool_size=3, stride=2)
 
         p3_reshaped = tf.reshape(p3, [-1, 9216])
 
-        fc1 = AlexNet.__dense(p3_reshaped, self.fc_weights[0])
-        fc2 = AlexNet.__dense(fc1, self.fc_weights[1])
+        fc1 = AlexNet.__dense(p3_reshaped, self.weights[5])
+        fc2 = AlexNet.__dense(fc1, self.weights[6])
 
-        fc3 = tf.matmul(fc2, self.fc_weights[2])
+        fc3 = tf.matmul(fc2, self.weights[7])
 
         return fc3
+
+    @staticmethod
+    def loss(prediction, target):
+        return tf.losses.categorical_crossentropy(target, prediction)
+
+    def train_step(self, inputs, outputs, optimizer):
+        with tf.GradientTape() as tape:
+            current_loss = AlexNet.loss(self.model(inputs, get_last_layer=True), outputs)
+        grads = tape.gradient(current_loss, self.weights)
+        optimizer.apply_gradients(zip(grads, self.weights))
+        logging.info("Loss: {}".format(tf.reduce_mean(current_loss)))
