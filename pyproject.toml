@@ -13,6 +13,7 @@ tensorflow-io = "0.15.0"
 tensorflow = "2.3.0"
 tensorflow-probability = "0.11.1"
 pydicom = "^2.1.2"
+tqdm = "^4.56.0"
 
 [tool.poetry.dev-dependencies]
 matplotlib = "^3.3.3"

@@ -3,6 +3,7 @@ import logging
 import os
 
 from pydicom import dcmread
+from tqdm import tqdm
 
 
 def __check_zero_pixels(file_path, patient_id, zero_ratio_threshold=.35):
@@ -17,7 +18,8 @@ def __check_zero_pixels(file_path, patient_id, zero_ratio_threshold=.35):
 
 
 def remove_non_centered_images(dcm_dir):
-    for file_path in os.listdir(dcm_dir):
+    logging.info("{} files will be processed".format(len(os.listdir(dcm_dir))))
+    for file_path in tqdm(os.listdir(dcm_dir)):
 
         patient_id = file_path.split(".")[0]
         absolute_path = os.path.join(dcm_dir, file_path)
