@@ -6,33 +6,34 @@ import numpy as np
 import tensorflow as tf
 from sklearn.decomposition import PCA
 
-from deep_cluster.clustering.kmeans import Kmeans as tf_kmeans
+from deep_cluster.clustering.kmeans import Kmeans
 from deep_cluster.convnet.alexnet import AlexNet
 from deep_cluster.preprocessing.dataset import Dataset
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.abspath(__file__))
+    dicom_path = os.path.join(dir_path, "../../data/stage_2_train_images")
 
     nb_classes = 3
     learning_rate = 0.001
 
-    dataset = Dataset(os.path.join(dir_path, "../../data/stage_2_train_images"), batch_size=32)
+    dataset = Dataset(dicom_path, batch_size=128)
     logging.info("successfully loaded preprocessing")
     tf_dataset = dataset.get_train_dataset()
 
     alexnet = AlexNet(nb_classes=nb_classes)
 
     optimizer = tf.optimizers.Adam(learning_rate)
-    kmeans_tf = tf_kmeans(k=nb_classes)
+    kmeans_tf = Kmeans(k=nb_classes)
 
     loss_evolution = []
     accuracy_evolution = []
 
     i = 0
-    for images in tf_dataset:
+    for images in tf_dataset.take(50):
         logging.info("batch {}".format(i))
         output = alexnet.model(images, get_last_layer=False)
 
