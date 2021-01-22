@@ -33,7 +33,7 @@ if __name__ == '__main__':
     accuracy_evolution = []
 
     i = 0
-    for images in tf_dataset.take(50):
+    for images in tf_dataset:
         logging.info("batch {}".format(i))
         output = alexnet.model(images, get_last_layer=False)
 
