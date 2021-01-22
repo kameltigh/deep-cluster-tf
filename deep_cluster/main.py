@@ -13,7 +13,11 @@ from deep_cluster.preprocessing.dataset import Dataset
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-if __name__ == '__main__':
+
+def train_deep_clustering():
+    """
+    Main function that builds a dataset and a Deep clustering model based on Alexnet and PCA + K-means.
+    """
     dir_path = os.path.dirname(os.path.abspath(__file__))
     dicom_path = os.path.join(dir_path, "../../data/stage_2_train_images")
 
@@ -65,3 +69,7 @@ if __name__ == '__main__':
     plt.plot(accuracy_evolution)
     plt.title("Train accuracy evolution")
     plt.show()
+
+
+if __name__ == '__main__':
+    train_deep_clustering()
