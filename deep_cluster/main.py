@@ -41,7 +41,7 @@ def train_deep_clustering():
         logging.info("batch {}".format(i))
         output = alexnet.model(images, get_last_layer=False)
 
-        pca = PCA(n_components=16, whiten=True)
+        pca = PCA(n_components=32, whiten=True)
         pca_transformed = pca.fit_transform(output)
         row_sums = np.linalg.norm(pca_transformed, axis=1)
         pca_transformed /= row_sums[:, np.newaxis]

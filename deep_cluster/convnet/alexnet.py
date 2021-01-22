@@ -67,7 +67,7 @@ class AlexNet:
         fc2 = AlexNet.__dense(fc1, self.weights[6])
 
         if get_last_layer:
-            fc3 = tf.nn.softmax(tf.matmul(fc2, self.weights[7]))
+            fc3 = tf.matmul(fc2, self.weights[7])
 
             return fc3
         else:
